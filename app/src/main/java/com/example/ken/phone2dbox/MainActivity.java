@@ -6,10 +6,13 @@ import android.content.ActivityNotFoundException;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.graphics.BitmapCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -124,6 +127,24 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onSaveInstanceState(Bundle outState){
+        super.onSaveInstanceState(outState);
+        outState.putString("mCameraFileName",mCameraFileName);
+    }
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState){
+        super.onRestoreInstanceState(savedInstanceState);
+        mCameraFileName = savedInstanceState.getString("mCameraFileName");
+    }
+
+    @Override
+    protected void onDestroy(){
+        super.onDestroy();
+        mSwingListener.unregistSensor();
+        mSwingListener =null;
+    }
+
+    @Override
     protected void onResume(){
         super.onResume();
         AndroidAuthSession session = mApi.getSession();
@@ -138,6 +159,30 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
+
+    @Override
+    public void onActivityResult(int requestCode,int resultCode,Intent data){
+        if(requestCode == NEW_PICTURE){
+            Uri uri = null;
+            if(data != null){
+                uri = data.getData();
+            }
+            if(uri == null && mCameraFileName != null){
+                uri = Uri.fromFile(new File(mCameraFileName));
+            }
+
+            Bitmap bitmap = BitmapFactory.decodeFile(mCameraFileName);
+            mImage.setImageBitmap(bitmap);
+            mFile = new File(mCameraFileName);
+
+            if(uri != null){
+
+            }
+        }else {
+
+        }
+    }
+
     private void logOut(){
         mApi.getSession().unlink();
         mLoggedIn = false;
