@@ -105,9 +105,11 @@ public class MainActivity extends AppCompatActivity {
                 intent.putExtra(MediaStore.EXTRA_OUTPUT,outuri);
 
                 try{
+                    //カメラアプリを起動
                     startActivityForResult(intent,NEW_PICTURE);
 
                 }catch (ActivityNotFoundException e) {
+                    showToast("There doesn't seem to be a camera.");
                 }
             }
         });
@@ -126,12 +128,12 @@ public class MainActivity extends AppCompatActivity {
         mSwingListener.registSensor();
     }
 
-    @Override
+    @Override//メンバが初期化されてしまうことへの対応
     protected void onSaveInstanceState(Bundle outState){
         super.onSaveInstanceState(outState);
         outState.putString("mCameraFileName",mCameraFileName);
     }
-    @Override
+    @Override//メンバが初期化されてしまうことへの対応
     protected void onRestoreInstanceState(Bundle savedInstanceState){
         super.onRestoreInstanceState(savedInstanceState);
         mCameraFileName = savedInstanceState.getString("mCameraFileName");
@@ -160,7 +162,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    @Override
+    @Override //撮影後呼び出される
     public void onActivityResult(int requestCode,int resultCode,Intent data){
         if(requestCode == NEW_PICTURE){
             Uri uri = null;
@@ -176,7 +178,7 @@ public class MainActivity extends AppCompatActivity {
             mFile = new File(mCameraFileName);
 
             if(uri != null){
-
+                showToast("投げ上げ動作で,Dropboxに写真をアップします");
             }
         }else {
 
@@ -223,9 +225,9 @@ public class MainActivity extends AppCompatActivity {
         switch (requestCode) {
             case MY_PERMISSIONS_REQEST_WRITE_EXTERNAL_STORAGE: {
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-
+                    showToast("これで画像をアップロードできます");
                 } else {
-
+                    showToast("外部へのファイルの保存が許可されなかったので、画像を保存できません");
                 }
                 return;
             }
@@ -234,4 +236,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+    private void showToast(String msg){
+        Toast error = Toast.makeText(this,msg,Toast.LENGTH_SHORT);
+        error.show();
+    }
 }
